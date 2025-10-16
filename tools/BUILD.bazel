@@ -1,7 +1,21 @@
 load("@bazelrc-preset.bzl", "bazelrc_preset")
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+load("@gazelle//:def.bzl", "gazelle")
 
 # `bazel run //tools:preset.update` to update the presets
 bazelrc_preset(
     name = "preset",
     strict = True,  # Change to True to opt-in to flags that are flipped in the upcoming major release
+)
+
+# gazelle:prefix owlet_monitor_go
+gazelle(name = "gazelle")
+
+buildifier(
+    name = "buildifier",
+    exclude_patterns = [
+        "./.git/*",
+    ],
+    lint_mode = "fix",
+    mode = "fix",
 )
