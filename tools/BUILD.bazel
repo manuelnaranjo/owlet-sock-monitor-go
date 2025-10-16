@@ -1,8 +1,7 @@
 load("@bazelrc-preset.bzl", "bazelrc_preset")
 
-
 # `bazel run //tools:preset.update` to update the presets
 bazelrc_preset(
     name = "preset",
-    strict = True, # Change to True to opt-in to flags that are flipped in the upcoming major release
+    strict = True,  # Change to True to opt-in to flags that are flipped in the upcoming major release
 )
