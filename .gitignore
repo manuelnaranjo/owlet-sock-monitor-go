@@ -1,0 +1,6 @@
+db
+owlet_monitor_go
+owlet-monitor*
+prometheus
+prometheus.yaml
+bazel-*

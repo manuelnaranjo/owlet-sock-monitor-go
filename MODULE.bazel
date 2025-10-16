@@ -1,0 +1,20 @@
+module(
+    name = "owlet_monitor_go",
+)
+
+bazel_dep(name = "bazelrc-preset.bzl", version = "1.4.0")
+bazel_dep(name = "rules_go", version = "0.46.0")
+bazel_dep(name = "gazelle", version = "0.36.0")
+
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
+go_sdk.download(version = "1.22.2")
+
+go_register_toolchains(version = "1.22.2")
+
+use_repo(
+    go_sdk,
+    "go_toolchains",
+)
+
+gazelle_dependencies = use_extension("@gazelle//:extensions.bzl", "gazelle_dependencies")
+gazelle_dependencies()
