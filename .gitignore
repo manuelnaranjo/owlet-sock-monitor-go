@@ -4,3 +4,4 @@ owlet-monitor*
 prometheus
 prometheus.yaml
 bazel-*
+user.bazelrc
