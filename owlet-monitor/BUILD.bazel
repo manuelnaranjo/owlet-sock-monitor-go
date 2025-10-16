@@ -16,3 +16,13 @@ go_binary(
     embed = [":owlet-monitor_lib"],
     visibility = ["//visibility:public"],
 )
+
+go_binary(
+    name = "owlet-monitor-arm64",
+    embed = [":owlet-monitor_lib"],
+    visibility = ["//visibility:public"],
+    goos = "linux",
+    goarch = "arm64",
+    static = "on",
+    pure = "on",
+)

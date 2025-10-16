@@ -31,41 +31,29 @@ The application is configured via the following environment variables:
 - `OWLET_PASS`: Your Owlet account password.
 - `OWLET_REGION`: The Owlet region to use. Can be `europe` or `world`. Defaults to `europe`.
 
-## Building with Bazel
+## Building/Running with Bazel
 
-This project uses Bazel for building.
+This project uses Bazel for building and gazelle to keep the build files up to date.
 
-1.  **Generate `BUILD.bazel` files**
-
-    First, you need to generate the `BUILD.bazel` files using Gazelle. Run the following command:
-
-    ```bash
-    bazel run //:gazelle
-    ```
-
-2.  **Build the application**
-
-    *   **For your local platform:**
-
-        ```bash
-        bazel build //:owlet_monitor_go
-        ```
-
-    *   **For ARM64:**
-
-        ```bash
-        bazel build //:owlet_monitor_go --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64
-        ```
-
-## Running
-
-Once built, you can run the application from the `bazel-bin` directory.
+### Running locally
 
 ```bash
-export OWLET_USER="your-email@example.com"
-export OWLET_PASS="your-password"
-export OWLET_REGION="europe" # or "world"
-./bazel-bin/owlet_monitor_go
+  export OWLET_USER="your-email@example.com"
+  export OWLET_PASS="your-password"
+  export OWLET_REGION="europe" # or "world"
+  bazel run //owlet-monitor
+```
+
+### Building for Raspberry PI (arm64)
+
+```bash
+  bazel build //:owlet-monitor-arm64
+  scp $(realpath bazel-bin/owlet-monitor/owlet-monitor-arm64_/owlet-monitor-arm64) <ip>:
+  ssh pi@<ip>
+  export OWLET_USER="your-email@example.com"
+  export OWLET_PASS="your-password"
+  export OWLET_REGION="europe" # or "world"
+  ./owlet-monitor-arm64
 ```
 
 The application will start fetching data and expose metrics on `http://localhost:9090/metrics`.
@@ -107,3 +95,71 @@ Put my `prometheus.yaml` into `/etc/prometheus/prometheus.yml` and modified `/et
 ARGS="--storage.tsdb.path=/var/lib/prometheus/db --web.listen-address=0.0.0.0:9091"
 ```
 
+## Running with systemd
+
+To run the Owlet monitor as a service on a systemd-based OS like Raspberry Pi OS, you can create a systemd service file.
+
+### Copy the required files
+
+```bash
+
+scp owlet-monitor.service pi@<ip>
+bazel build //:owlet-monitor-arm64
+scp $(realpath bazel-bin/owlet-monitor/owlet-monitor-arm64_/owlet-monitor-arm64) pi@<ip>:
+ssh pi@<ip>
+sudo mv owlet-monitor.service /etc/systemd/system/
+sudo mkdir -p /usr/local/bin
+sudo cp owlet-monitor-arm64 /usr/local/bin/owlet-monitor
+sudo mkdir -p /etc/owlet-monitor
+```
+
+### Create the Environment File
+
+The service loads your Owlet credentials from a separate environment file.
+
+**Create the configuration file:**
+
+Create a file at `/etc/owlet-monitor/owlet-monitor.conf` with your credentials:
+
+```bash
+OWLET_USER="your-email@example.com"
+OWLET_PASS="your-password"
+OWLET_REGION="europe"
+```
+
+**Set permissions:**
+
+Secure this file so that only the root user can read it:
+
+```bash
+sudo chown root:root /etc/owlet-monitor/owlet-monitor.conf
+sudo chmod 600 /etc/owlet-monitor/owlet-monitor.conf
+```
+
+### Manage the Service
+
+Use `systemctl` to manage your new service.
+
+- **Reload systemd:**
+
+  ```bash
+  sudo systemctl daemon-reload
+  ```
+
+- **Enable the service to start on boot:**
+
+  ```bash
+  sudo systemctl enable owlet-monitor.service
+  ```
+
+- **Start the service:**
+
+  ```bash
+  sudo systemctl start owlet-monitor.service
+  ```
+
+- **Check the status of the service:**
+
+  ```bash
+  sudo systemctl status owlet-monitor.service
+  ```

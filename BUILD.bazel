@@ -1,0 +1,9 @@
+alias(
+    name = "owlet-monitor",
+    actual = "//owlet-monitor"
+)
+
+alias(
+    name = "owlet-monitor-arm64",
+    actual = "//owlet-monitor:owlet-monitor-arm64",
+)

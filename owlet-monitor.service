@@ -1,0 +1,19 @@
+[Unit]
+Description=Owlet Monitor Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/owlet-monitor
+Restart=always
+
+# It's recommended to run the service as a non-root user
+# You may want to create a dedicated user for this service
+User=nobody
+Group=nogroup
+
+# Environment variables for the Owlet monitor
+# Place them in a separate file for security
+EnvironmentFile=/etc/owlet-monitor/owlet-monitor.conf
+
+[Install]
+WantedBy=multi-user.target
