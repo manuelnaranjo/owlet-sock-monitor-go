@@ -1,6 +1,9 @@
 [Unit]
 Description=Owlet Monitor Service
-After=network.target
+# Wait for the network to be fully online (IP assigned)
+After=network-online.target
+# Require the network to be online; if the network fails, this service won't start
+Wants=network-online.target
 
 [Service]
 ExecStart=/usr/local/bin/owlet-monitor

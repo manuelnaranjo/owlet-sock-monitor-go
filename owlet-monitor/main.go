@@ -134,6 +134,22 @@ func init() {
 	vitalsGaugeVecs["base_station_on"] = newVitalsGauge("base_station_on", "Base station on status (1 for on, 0 for off).")
 	vitalsGaugeVecs["sensor_battery"] = newVitalsGauge("sensor_battery", "Amount of minutes the sensor battery hsa")
 	vitalsGaugeVecs["baby_movement"] = newVitalsGauge("baby_movement", "How much is the baby moving")
+	vitalsGaugeVecs["alert"] = newVitalsGauge("alert", "Alert status (alrt)")
+	vitalsGaugeVecs["aps"] = newVitalsGauge("aps", "APS value")
+	vitalsGaugeVecs["bp"] = newVitalsGauge("bp", "BP value")
+	vitalsGaugeVecs["bsb"] = newVitalsGauge("bsb", "BSB value")
+	vitalsGaugeVecs["mrs"] = newVitalsGauge("mrs", "MRS value")
+	vitalsGaugeVecs["mst"] = newVitalsGauge("mst", "MST value")
+	vitalsGaugeVecs["mvb"] = newVitalsGauge("mvb", "MVB value")
+	vitalsGaugeVecs["onm"] = newVitalsGauge("onm", "ONM value")
+	vitalsGaugeVecs["ota"] = newVitalsGauge("ota", "OTA status")
+	vitalsGaugeVecs["oxta"] = newVitalsGauge("oxta", "OXTA value")
+	vitalsGaugeVecs["rsi"] = newVitalsGauge("rsi", "RSI value")
+	vitalsGaugeVecs["sb"] = newVitalsGauge("sb", "SB value")
+	vitalsGaugeVecs["sc"] = newVitalsGauge("sc", "SC value")
+	vitalsGaugeVecs["srf"] = newVitalsGauge("srf", "SRF value")
+	vitalsGaugeVecs["ss"] = newVitalsGauge("ss", "SS value")
+	vitalsGaugeVecs["st"] = newVitalsGauge("st", "ST value")
 
 	// Initialize region configurations
 	regionConfs = map[string]RegionConfig{
@@ -413,6 +429,54 @@ func recordVitals(dsn string, props map[string]Property) {
 	}
 	if vitals.BabyMovement != nil {
 		vitalsGaugeVecs["baby_movement"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.BabyMovement))
+	}
+	if vitals.Alert != nil {
+		vitalsGaugeVecs["alert"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Alert))
+	}
+	if vitals.Aps != nil {
+		vitalsGaugeVecs["aps"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Aps))
+	}
+	if vitals.Bp != nil {
+		vitalsGaugeVecs["bp"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Bp))
+	}
+	if vitals.Bsb != nil {
+		vitalsGaugeVecs["bsb"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Bsb))
+	}
+	if vitals.Mrs != nil {
+		vitalsGaugeVecs["mrs"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Mrs))
+	}
+	if vitals.Mst != nil {
+		vitalsGaugeVecs["mst"].With(prometheus.Labels{"dsn": dsn}).Set(*vitals.Mst)
+	}
+	if vitals.Mvb != nil {
+		vitalsGaugeVecs["mvb"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Mvb))
+	}
+	if vitals.Onm != nil {
+		vitalsGaugeVecs["onm"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Onm))
+	}
+	if vitals.Ota != nil {
+		vitalsGaugeVecs["ota"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Ota))
+	}
+	if vitals.Oxta != nil {
+		vitalsGaugeVecs["oxta"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Oxta))
+	}
+	if vitals.Rsi != nil {
+		vitalsGaugeVecs["rsi"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Rsi))
+	}
+	if vitals.Sb != nil {
+		vitalsGaugeVecs["sb"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Sb))
+	}
+	if vitals.Sc != nil {
+		vitalsGaugeVecs["sc"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Sc))
+	}
+	if vitals.Srf != nil {
+		vitalsGaugeVecs["srf"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Srf))
+	}
+	if vitals.Ss != nil {
+		vitalsGaugeVecs["ss"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.Ss))
+	}
+	if vitals.St != nil {
+		vitalsGaugeVecs["st"].With(prometheus.Labels{"dsn": dsn}).Set(float64(*vitals.St))
 	}
 
 	prettyJSON, err := json.MarshalIndent(vitals, "", "  ")
