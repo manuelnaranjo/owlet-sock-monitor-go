@@ -7,6 +7,20 @@ import %workspace%/tools/preset.bazelrc
 # Project-specific flags
 # This is also a place to override settings from the presets
 
+common:remote --bes_results_url=https://mnaranjo.buildbuddy.io/invocation/
+common:remote --bes_backend=grpcs://mnaranjo.buildbuddy.io
+common:remote --remote_cache=grpcs://mnaranjo.buildbuddy.io
+common:remote --noremote_upload_local_results # Uploads logs & artifacts without writing to cache
+common:remote --remote_timeout=10m
+common:remote --remote_download_toplevel # Helps remove network bottleneck if caching is enabled
+common:remote --remote_timeout=10m
+
+common:rbe --config=remote --remote_executor=grpcs://mnaranjo.buildbuddy.io
+common:rbe --platforms=@toolchains_buildbuddy//platforms:linux_x86_64
+common:rbe --extra_execution_platforms=@toolchains_buildbuddy//platforms:linux_x86_64
+info:rbe --platforms= --extra_execution_platforms=
+common:rbe --jobs 40
+
 ########################
 # User preferences
 # Load any settings & overrides specific to the current user from `user.bazelrc`.
