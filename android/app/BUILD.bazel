@@ -4,9 +4,9 @@ load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
 kt_android_library(
     name = "app_lib",
     srcs = glob(["src/main/kotlin/**/*.kt"]),
+    custom_package = "com.owletmonitor.tv",
     manifest = "src/main/AndroidManifest.xml",
     resource_files = glob(["src/main/res/**"]),
-    custom_package = "com.owletmonitor.tv",
     deps = [
         "@maven//:androidx_car_app_app",
     ],

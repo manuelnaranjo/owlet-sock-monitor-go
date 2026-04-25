@@ -9,7 +9,10 @@ bazelrc_preset(
 )
 
 # gazelle:prefix owlet_monitor_go
-gazelle(name = "gazelle")
+gazelle(
+    name = "gazelle",
+    visibility = ["//:__pkg__"],
+)
 
 buildifier(
     name = "buildifier",
@@ -18,4 +21,5 @@ buildifier(
     ],
     lint_mode = "fix",
     mode = "fix",
+    visibility = ["//:__pkg__"],
 )
