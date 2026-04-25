@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Metadata for OwletDreamService.
+    android:settingsActivity points to the configuration screen shown in
+    the system's "Screen saver" settings when the user taps the gear icon.
+-->
+<dream xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="com.owletmonitor.tv/.MainActivity" />

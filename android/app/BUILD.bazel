@@ -1,0 +1,28 @@
+load("@rules_android//android:rules.bzl", "android_binary")
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+
+kt_android_library(
+    name = "app_lib",
+    srcs = glob(["src/main/kotlin/**/*.kt"]),
+    manifest = "src/main/AndroidManifest.xml",
+    resource_files = glob(["src/main/res/**"]),
+    custom_package = "com.owletmonitor.tv",
+    deps = [
+        "@maven//:androidx_car_app_app",
+    ],
+)
+
+android_binary(
+    name = "owlet_tv",
+    manifest = "src/main/AndroidManifest.xml",
+    manifest_values = {
+        "applicationId": "com.owletmonitor.tv",
+        "versionCode": "1",
+        "versionName": "1.0",
+        "minSdkVersion": "23",
+        "targetSdkVersion": "34",
+    },
+    # multidex = "native",
+    resource_files = glob(["src/main/res/**"]),
+    deps = [":app_lib"],
+)

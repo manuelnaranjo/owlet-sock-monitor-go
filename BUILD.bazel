@@ -1,9 +1,19 @@
 alias(
     name = "owlet-monitor",
-    actual = "//owlet-monitor"
+    actual = "//owlet-monitor",
 )
 
 alias(
     name = "owlet-monitor-arm64",
     actual = "//owlet-monitor:owlet-monitor-arm64",
+)
+
+alias(
+    name = "buildifier",
+    actual = "//tools:buildifier",
+)
+
+alias(
+    name = "gazelle",
+    actual = "//tools:gazelle",
 )

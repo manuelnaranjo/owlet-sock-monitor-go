@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Owlet Monitor</string>
+    <string name="dream_name">Owlet Baby Monitor</string>
+
+    <!-- Dream layout labels -->
+    <string name="label_oxygen">Oxygen Saturation</string>
+    <string name="label_heart_rate">Heart Rate</string>
+    <string name="status_waiting">Waiting for data…</string>
+    <string name="label_connecting">Connecting…</string>
+    <string name="label_last_updated">Updated: %s</string>
+
+    <!-- Main activity -->
+    <string name="setup_instructions">To display the Owlet Monitor screensaver on your TV,
+open screensaver settings and select "Owlet Baby Monitor".</string>
+    <string name="btn_open_settings">Open Screensaver Settings</string>
+    <string name="version_label">Version %s</string>
+
+    <!-- Phone / Auto -->
+    <string name="btn_refresh">Refresh Now</string>
+    <string name="status_ok">All Good</string>
+    <string name="status_error">Cannot Connect</string>
+</resources>
