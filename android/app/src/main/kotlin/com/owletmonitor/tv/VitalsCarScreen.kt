@@ -1,5 +1,7 @@
 package com.owletmonitor.tv
 
+import android.os.Handler
+import android.os.Looper
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Pane
@@ -11,11 +13,29 @@ import androidx.lifecycle.LifecycleOwner
 
 class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
 
+    private val handler = Handler(Looper.getMainLooper())
     private val vitalsListener: (VitalsData) -> Unit = { invalidate() }
+
+    private val refreshRunnable = object : Runnable {
+        override fun run() {
+            VitalsRepository.fetchNow()
+            handler.postDelayed(this, REFRESH_INTERVAL_MS)
+        }
+    }
+
+    private companion object {
+        const val REFRESH_INTERVAL_MS = 5_000L
+    }
 
     init {
         AppSettings.init(carContext)
         lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                handler.postDelayed(refreshRunnable, REFRESH_INTERVAL_MS)
+            }
+            override fun onStop(owner: LifecycleOwner) {
+                handler.removeCallbacksAndMessages(null)
+            }
             override fun onDestroy(owner: LifecycleOwner) {
                 VitalsRepository.removeListener(vitalsListener)
             }
@@ -26,6 +46,17 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
 
     override fun onGetTemplate(): Template {
         val data = VitalsRepository.latest
+
+        if (data?.isCharging == true) {
+            val pane = Pane.Builder()
+                .addRow(Row.Builder()
+                    .setTitle(carContext.getString(R.string.status_charging))
+                    .build())
+                .build()
+            return PaneTemplate.Builder(pane)
+                .setTitle(carContext.getString(R.string.app_name))
+                .build()
+        }
 
         val oxygenRow = Row.Builder()
             .setTitle(carContext.getString(R.string.label_oxygen))

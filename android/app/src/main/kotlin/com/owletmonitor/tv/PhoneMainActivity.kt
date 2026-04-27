@@ -5,6 +5,8 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.EditText
 import android.widget.PopupMenu
@@ -16,7 +18,19 @@ import java.util.Locale
 
 class PhoneMainActivity : Activity() {
 
+    private val handler = Handler(Looper.getMainLooper())
     private val vitalsListener: (VitalsData) -> Unit = { data -> updateDisplay(data) }
+
+    private val refreshRunnable = object : Runnable {
+        override fun run() {
+            VitalsRepository.fetchNow()
+            handler.postDelayed(this, REFRESH_INTERVAL_MS)
+        }
+    }
+
+    companion object {
+        private const val REFRESH_INTERVAL_MS = 5_000L
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +54,12 @@ class PhoneMainActivity : Activity() {
         super.onResume()
         VitalsRepository.addListener(vitalsListener)
         VitalsRepository.fetchNow()
+        handler.postDelayed(refreshRunnable, REFRESH_INTERVAL_MS)
     }
 
     override fun onPause() {
         super.onPause()
+        handler.removeCallbacksAndMessages(null)
         VitalsRepository.removeListener(vitalsListener)
     }
 

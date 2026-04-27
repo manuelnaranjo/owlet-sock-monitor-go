@@ -23,7 +23,7 @@ class OwletDreamService : DreamService() {
     private val vitalsListener: (VitalsData) -> Unit = { data -> updateDisplay(data) }
 
     companion object {
-        private const val REFRESH_INTERVAL_MS = 30_000L
+        private const val REFRESH_INTERVAL_MS = 5_000L
         private const val DRIFT_DURATION_MS = 20_000L
         private const val DRIFT_RANGE_DP = 40f
     }
