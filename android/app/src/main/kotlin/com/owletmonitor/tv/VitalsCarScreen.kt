@@ -4,10 +4,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
-import androidx.car.app.model.Pane
-import androidx.car.app.model.PaneTemplate
-import androidx.car.app.model.Row
+import androidx.car.app.model.CarIcon
+import androidx.car.app.model.GridItem
+import androidx.car.app.model.GridTemplate
+import androidx.car.app.model.ItemList
 import androidx.car.app.model.Template
+import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
@@ -47,51 +49,63 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
     override fun onGetTemplate(): Template {
         val data = VitalsRepository.latest
 
+        fun icon(resId: Int): CarIcon =
+            CarIcon.Builder(IconCompat.createWithResource(carContext, resId)).build()
+
         if (data?.isCharging == true) {
-            val pane = Pane.Builder()
-                .addRow(Row.Builder()
-                    .setTitle(carContext.getString(R.string.status_charging))
-                    .build())
-                .build()
-            return PaneTemplate.Builder(pane)
+            return GridTemplate.Builder()
                 .setTitle(carContext.getString(R.string.app_name))
+                .setSingleList(
+                    ItemList.Builder()
+                        .addItem(GridItem.Builder()
+                            .setTitle(carContext.getString(R.string.status_charging))
+                            .setText("–")
+                            .setImage(icon(R.drawable.ic_car_sock), GridItem.IMAGE_TYPE_ICON)
+                            .build())
+                        .build()
+                )
                 .build()
         }
 
-        val oxygenRow = Row.Builder()
-            .setTitle(carContext.getString(R.string.label_oxygen))
-            .addText(data?.oxygenPercent?.let { "$it %" } ?: "–– %")
-            .build()
-
-        val heartRateRow = Row.Builder()
-            .setTitle(carContext.getString(R.string.label_heart_rate))
-            .addText(data?.heartRateBpm?.let { "$it bpm" } ?: "–– bpm")
-            .build()
-
         val sleepStateStr = data?.sleepStateRaw?.let { sleepStateText(it) } ?: "––"
         val sleepDurStr   = data?.sleepStartedAtMs?.let { sleepDurationText(it) } ?: ""
-        val sleepRow = Row.Builder()
-            .setTitle(carContext.getString(R.string.label_sleep_state))
-            .addText(sleepStateStr)
-            .apply { if (sleepDurStr.isNotEmpty()) addText(sleepDurStr) }
-            .build()
+        val sleepText     = if (sleepDurStr.isNotEmpty()) "$sleepStateStr\n$sleepDurStr"
+                            else sleepStateStr
 
-        val sockRow = Row.Builder()
-            .setTitle(carContext.getString(R.string.label_sock_connection))
-            .addText(data?.sockConnected?.let {
-                if (it) carContext.getString(R.string.sock_connected)
-                else    carContext.getString(R.string.sock_disconnected)
-            } ?: "––")
-            .build()
-
-        val pane = Pane.Builder()
-            .addRow(oxygenRow)
-            .addRow(heartRateRow)
-            .addRow(sleepRow)
-            .addRow(sockRow)
-            .build()
-        return PaneTemplate.Builder(pane)
+        return GridTemplate.Builder()
             .setTitle(carContext.getString(R.string.app_name))
+            .setSingleList(
+                ItemList.Builder()
+                    .addItem(GridItem.Builder()
+                        .setTitle(carContext.getString(R.string.label_oxygen))
+                        .setText(data?.oxygenPercent?.let { "$it %" } ?: "–– %")
+                        .setImage(icon(R.drawable.ic_car_oxygen), GridItem.IMAGE_TYPE_ICON)
+                        .build())
+                    .addItem(GridItem.Builder()
+                        .setTitle(carContext.getString(R.string.label_heart_rate))
+                        .setText(data?.heartRateBpm?.let { "$it bpm" } ?: "–– bpm")
+                        .setImage(icon(R.drawable.ic_car_heart_rate), GridItem.IMAGE_TYPE_ICON)
+                        .build())
+                    .addItem(GridItem.Builder()
+                        .setTitle(carContext.getString(R.string.label_sleep_state))
+                        .setText(sleepText)
+                        .setImage(icon(R.drawable.ic_car_sleep), GridItem.IMAGE_TYPE_ICON)
+                        .build())
+                    .addItem(GridItem.Builder()
+                        .setTitle(carContext.getString(R.string.label_sock_connection))
+                        .setText(data?.sockConnected?.let {
+                            if (it) carContext.getString(R.string.sock_connected)
+                            else    carContext.getString(R.string.sock_disconnected)
+                        } ?: "––")
+                        .setImage(icon(R.drawable.ic_car_sock), GridItem.IMAGE_TYPE_ICON)
+                        .build())
+                    .addItem(GridItem.Builder()
+                        .setTitle(carContext.getString(R.string.label_skin_temp))
+                        .setText(data?.skinTemp?.let { "%.1f °C".format(it) } ?: "–– °C")
+                        .setImage(icon(R.drawable.ic_car_temp), GridItem.IMAGE_TYPE_ICON)
+                        .build())
+                    .build()
+            )
             .build()
     }
 
