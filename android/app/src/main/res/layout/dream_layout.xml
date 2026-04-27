@@ -28,53 +28,138 @@
             android:alpha="0.6"
             android:layout_marginBottom="16dp" />
 
-        <!-- Oxygen saturation -->
+        <!-- Charging indicator (shown in place of metrics when charging) -->
         <TextView
+            android:id="@+id/tv_charging"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_oxygen"
-            android:textColor="#80FFFFFF"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/tv_oxygen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="–– %"
-            android:textColor="#4FC3F7"
-            android:textSize="48sp"
+            android:text="@string/status_charging"
+            android:textColor="#FFB300"
+            android:textSize="36sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
 
-        <!-- Heart rate -->
-        <TextView
+        <!-- All vitals — hidden when charging -->
+        <LinearLayout
+            android:id="@+id/container_metrics"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_heart_rate"
-            android:textColor="#80FFFFFF"
-            android:textSize="14sp" />
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <TextView
-            android:id="@+id/tv_heart_rate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="–– bpm"
-            android:textColor="#EF9A9A"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            <!-- Oxygen saturation -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_oxygen"
+                android:textColor="#80FFFFFF"
+                android:textSize="14sp" />
 
-        <!-- Status -->
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/status_waiting"
-            android:textColor="#A5D6A7"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp" />
+            <TextView
+                android:id="@+id/tv_oxygen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–– %"
+                android:textColor="#4FC3F7"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
 
-        <!-- Last updated -->
+            <!-- Heart rate -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_heart_rate"
+                android:textColor="#80FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_heart_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–– bpm"
+                android:textColor="#EF9A9A"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Sleep state -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_sleep_state"
+                android:textColor="#80FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_sleep_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="––"
+                android:textColor="#FFD54F"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_sleep_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#FFFFD54F"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
+
+            <!-- Sock connection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_sock_connection"
+                android:textColor="#80FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_sock_connection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="––"
+                android:textColor="#A5D6A7"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Skin temperature -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_skin_temp"
+                android:textColor="#80FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_skin_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="––"
+                android:textColor="#80DEEA"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Status -->
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/status_waiting"
+                android:textColor="#A5D6A7"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <!-- Last updated — always visible -->
         <TextView
             android:id="@+id/tv_last_updated"
             android:layout_width="wrap_content"

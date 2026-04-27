@@ -70,6 +70,10 @@
                 android:resource="@xml/dream_info" />
         </service>
 
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="6" />
+
         <!-- Android Auto service -->
         <service
             android:name=".OwletCarAppService"
@@ -79,9 +83,6 @@
                 <action android:name="androidx.car.app.CarAppService" />
                 <category android:name="androidx.car.app.category.IOT" />
             </intent-filter>
-            <meta-data
-                android:name="androidx.car.app.minCarApiLevel"
-                android:value="6" />
         </service>
 
     </application>

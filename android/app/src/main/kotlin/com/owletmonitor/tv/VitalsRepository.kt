@@ -3,7 +3,6 @@ package com.owletmonitor.tv
 import android.os.Handler
 import android.os.Looper
 
-// TODO: replace mock data with real fetch from Grafana Cloud Prometheus.
 object VitalsRepository {
 
     @Volatile var latest: VitalsData? = null
@@ -21,14 +20,21 @@ object VitalsRepository {
     }
 
     fun fetchNow() {
-        val mock = VitalsData(
-            oxygenPercent = 98,
-            heartRateBpm = 125,
-            fetchedAtMs = System.currentTimeMillis(),
-        )
-        latest = mock
-        mainHandler.post {
-            listeners.toList().forEach { it(mock) }
+        val url   = AppSettings.prometheusUrl
+        val token = AppSettings.authToken
+        val uid   = AppSettings.userId
+        if (url.isBlank()) {
+            emit(VitalsData(null, null, null, null, null, null, false, System.currentTimeMillis()))
+            return
         }
+        PrometheusClient.fetchVitals(url, uid, token,
+            onSuccess = { data -> emit(data) },
+            onError   = { _    -> emit(VitalsData(null, null, null, null, null, null, false, System.currentTimeMillis())) },
+        )
+    }
+
+    private fun emit(data: VitalsData) {
+        latest = data
+        mainHandler.post { listeners.toList().forEach { it(data) } }
     }
 }
