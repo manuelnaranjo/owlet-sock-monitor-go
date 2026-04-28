@@ -1,5 +1,6 @@
-load("@rules_android//android:rules.bzl", "android_binary")
+load("@rules_android//android:rules.bzl", "android_binary", "android_application")
 load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 kt_android_library(
     name = "app_lib",
@@ -19,10 +20,36 @@ android_binary(
         "applicationId": "com.owletmonitor.tv",
         "versionCode": "1",
         "versionName": "1.0",
-        "minSdkVersion": "23",
-        "targetSdkVersion": "34",
     },
     # multidex = "native",
     resource_files = glob(["src/main/res/**"]),
     deps = [":app_lib"],
+)
+
+android_application(
+    name = "owlet_tv_unsigned_bundle",
+    bundle_config_file = "bundle_config.pb.json",
+    manifest = "src/main/AndroidManifest.xml",
+    manifest_values = {
+        "applicationId": "com.owletmonitor.tv",
+        "versionCode": "2",
+        "versionName": "1.0.1",
+    },
+    resource_files = glob(["src/main/res/**"]),
+    deps = [":app_lib"],
+)
+
+sh_binary(
+    name = "owlet_tv_bundle",
+    srcs = ["sign.sh"],
+    data = [
+        ":owlet_tv_unsigned_bundle_unsigned.aab",
+        "@rules_java//toolchains:current_host_java_runtime",
+    ],
+    deps = ["@rules_shell//shell/runfiles"],
+    toolchains = ["@rules_java//toolchains:current_host_java_runtime"],
+    env = {
+        "JAVABASE": "$(JAVABASE)",
+        "SRC": "$(rootpath :owlet_tv_unsigned_bundle_unsigned.aab)",
+    },
 )

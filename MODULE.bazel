@@ -47,6 +47,7 @@ register_toolchains("@llvm//toolchain:all")
 # Android + Kotlin support
 bazel_dep(name = "rules_java", version = "9.6.1")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "rules_shell", version = "0.8.0")
 bazel_dep(name = "rules_android", version = "0.7.2")
 bazel_dep(name = "rules_kotlin", version = "2.3.20")
 bazel_dep(name = "rules_jvm_external", version = "7.0")
