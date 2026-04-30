@@ -2,8 +2,6 @@ package com.owletmonitor.tv
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -34,11 +32,6 @@ class PhoneMainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-            return
-        }
         AppSettings.init(this)
         setContentView(R.layout.activity_phone_main)
 
@@ -150,10 +143,10 @@ class PhoneMainActivity : Activity() {
     }
 
     private fun sleepStateText(raw: Int): String = when {
-        raw >= 15 -> getString(R.string.sleep_deep)
-        raw >= 8  -> getString(R.string.sleep_medium)
-        raw >= 1  -> getString(R.string.sleep_light)
-        else      -> getString(R.string.sleep_not_sleeping)
+        raw > 15 -> getString(R.string.sleep_deep)
+        raw > 8  -> getString(R.string.sleep_medium)
+        raw > 1  -> getString(R.string.sleep_light)
+        else     -> getString(R.string.sleep_not_sleeping)
     }
 
     private fun sleepDurationText(startedAtMs: Long): String {

@@ -170,4 +170,16 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_configure_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="24dp"
+        android:text="@string/btn_configure"
+        android:textSize="12sp"
+        android:alpha="0.55"
+        android:focusable="true"
+        android:padding="8dp" />
+
 </FrameLayout>
