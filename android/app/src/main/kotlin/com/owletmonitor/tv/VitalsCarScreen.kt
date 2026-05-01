@@ -21,19 +21,15 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
     private val refreshRunnable = object : Runnable {
         override fun run() {
             VitalsRepository.fetchNow()
-            handler.postDelayed(this, REFRESH_INTERVAL_MS)
+            handler.postDelayed(this, VitalsFormatter.REFRESH_INTERVAL_MS)
         }
-    }
-
-    private companion object {
-        const val REFRESH_INTERVAL_MS = 5_000L
     }
 
     init {
         AppSettings.init(carContext)
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
-                handler.postDelayed(refreshRunnable, REFRESH_INTERVAL_MS)
+                handler.postDelayed(refreshRunnable, VitalsFormatter.REFRESH_INTERVAL_MS)
             }
             override fun onStop(owner: LifecycleOwner) {
                 handler.removeCallbacksAndMessages(null)
@@ -67,8 +63,8 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         }
 
-        val sleepStateStr = data?.sleepStateRaw?.let { sleepStateText(it) } ?: "––"
-        val sleepDurStr   = data?.sleepStartedAtMs?.let { sleepDurationText(it) } ?: ""
+        val sleepStateStr = data?.sleepStateRaw?.let { VitalsFormatter.sleepStateText(carContext, it) } ?: "––"
+        val sleepDurStr   = data?.sleepStartedAtMs?.let { VitalsFormatter.sleepDurationText(carContext, it) } ?: ""
         val sleepText     = if (sleepDurStr.isNotEmpty()) "$sleepStateStr\n$sleepDurStr"
                             else sleepStateStr
 
@@ -78,12 +74,12 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
                 ItemList.Builder()
                     .addItem(GridItem.Builder()
                         .setTitle(carContext.getString(R.string.label_oxygen))
-                        .setText(data?.oxygenPercent?.let { "$it %" } ?: "–– %")
+                        .setText(VitalsFormatter.oxygenText(data?.oxygenPercent))
                         .setImage(icon(R.drawable.ic_car_oxygen), GridItem.IMAGE_TYPE_ICON)
                         .build())
                     .addItem(GridItem.Builder()
                         .setTitle(carContext.getString(R.string.label_heart_rate))
-                        .setText(data?.heartRateBpm?.let { "$it bpm" } ?: "–– bpm")
+                        .setText(VitalsFormatter.heartRateText(data?.heartRateBpm))
                         .setImage(icon(R.drawable.ic_car_heart_rate), GridItem.IMAGE_TYPE_ICON)
                         .build())
                     .addItem(GridItem.Builder()
@@ -93,32 +89,16 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
                         .build())
                     .addItem(GridItem.Builder()
                         .setTitle(carContext.getString(R.string.label_sock_connection))
-                        .setText(data?.sockConnected?.let {
-                            if (it) carContext.getString(R.string.sock_connected)
-                            else    carContext.getString(R.string.sock_disconnected)
-                        } ?: "––")
+                        .setText(VitalsFormatter.sockText(carContext, data?.sockConnected))
                         .setImage(icon(R.drawable.ic_car_sock), GridItem.IMAGE_TYPE_ICON)
                         .build())
                     .addItem(GridItem.Builder()
                         .setTitle(carContext.getString(R.string.label_skin_temp))
-                        .setText(data?.skinTemp?.let { "%.1f °C".format(it) } ?: "–– °C")
+                        .setText(VitalsFormatter.skinTempText(data?.skinTemp))
                         .setImage(icon(R.drawable.ic_car_temp), GridItem.IMAGE_TYPE_ICON)
                         .build())
                     .build()
             )
             .build()
-    }
-
-    private fun sleepStateText(raw: Int): String = when {
-        raw >= 15 -> carContext.getString(R.string.sleep_deep)
-        raw >= 8  -> carContext.getString(R.string.sleep_medium)
-        raw >= 1  -> carContext.getString(R.string.sleep_light)
-        else      -> carContext.getString(R.string.sleep_not_sleeping)
-    }
-
-    private fun sleepDurationText(startedAtMs: Long): String {
-        val mins = ((System.currentTimeMillis() - startedAtMs) / 60_000).toInt()
-        return if (mins < 60) carContext.getString(R.string.sleeping_for_minutes, mins)
-               else carContext.getString(R.string.sleeping_for_hours, mins / 60, mins % 60)
     }
 }

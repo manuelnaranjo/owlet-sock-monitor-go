@@ -21,19 +21,15 @@ abstract class VitalsActivity : Activity() {
     private val refreshRunnable = object : Runnable {
         override fun run() {
             VitalsRepository.fetchNow()
-            handler.postDelayed(this, REFRESH_INTERVAL_MS)
+            handler.postDelayed(this, VitalsFormatter.REFRESH_INTERVAL_MS)
         }
-    }
-
-    companion object {
-        const val REFRESH_INTERVAL_MS = 5_000L
     }
 
     override fun onResume() {
         super.onResume()
         VitalsRepository.addListener(vitalsListener)
         VitalsRepository.fetchNow()
-        handler.postDelayed(refreshRunnable, REFRESH_INTERVAL_MS)
+        handler.postDelayed(refreshRunnable, VitalsFormatter.REFRESH_INTERVAL_MS)
     }
 
     override fun onPause() {
@@ -95,42 +91,25 @@ abstract class VitalsActivity : Activity() {
         if (charging) return
 
         findViewById<TextView>(R.id.tv_oxygen)?.text =
-            data.oxygenPercent?.let { "$it %" } ?: "–– %"
+            VitalsFormatter.oxygenText(data.oxygenPercent)
         findViewById<TextView>(R.id.tv_heart_rate)?.text =
-            data.heartRateBpm?.let { "$it bpm" } ?: "–– bpm"
+            VitalsFormatter.heartRateText(data.heartRateBpm)
         findViewById<TextView>(R.id.tv_sleep_state)?.text =
-            data.sleepStateRaw?.let { sleepStateText(it) } ?: "––"
+            data.sleepStateRaw?.let { VitalsFormatter.sleepStateText(this, it) } ?: "––"
 
         val tvDuration = findViewById<TextView>(R.id.tv_sleep_duration)
         val sleeping = data.sleepStartedAtMs != null
         tvDuration?.visibility = if (sleeping) View.VISIBLE else View.GONE
-        if (sleeping) tvDuration?.text = sleepDurationText(data.sleepStartedAtMs!!)
+        if (sleeping) tvDuration?.text = VitalsFormatter.sleepDurationText(this, data.sleepStartedAtMs!!)
 
         val tvSock = findViewById<TextView>(R.id.tv_sock_connection)
-        tvSock?.text = when (data.sockConnected) {
-            true  -> getString(R.string.sock_connected)
-            false -> getString(R.string.sock_disconnected)
-            null  -> "––"
-        }
+        tvSock?.text = VitalsFormatter.sockText(this, data.sockConnected)
         tvSock?.setTextColor(if (data.sockConnected == false) 0xFFEF5350.toInt() else 0xFFA5D6A7.toInt())
 
         findViewById<TextView>(R.id.tv_skin_temp)?.text =
-            data.skinTemp?.let { "%.1f°".format(it) } ?: "––"
+            VitalsFormatter.skinTempText(data.skinTemp)
         findViewById<TextView>(R.id.tv_status)?.text =
             if (data.oxygenPercent != null) getString(R.string.status_ok)
             else getString(R.string.status_waiting)
-    }
-
-    private fun sleepStateText(raw: Int): String = when {
-        raw >= 15 -> getString(R.string.sleep_deep)
-        raw >= 8  -> getString(R.string.sleep_medium)
-        raw >= 1  -> getString(R.string.sleep_light)
-        else      -> getString(R.string.sleep_not_sleeping)
-    }
-
-    private fun sleepDurationText(startedAtMs: Long): String {
-        val mins = ((System.currentTimeMillis() - startedAtMs) / 60_000).toInt()
-        return if (mins < 60) getString(R.string.sleeping_for_minutes, mins)
-               else getString(R.string.sleeping_for_hours, mins / 60, mins % 60)
     }
 }
