@@ -54,5 +54,7 @@ open screensaver settings and select "Owlet Baby Monitor".</string>
     <!-- Sleep duration -->
     <string name="sleeping_for_minutes">Sleeping for %d min</string>
     <string name="sleeping_for_hours">Sleeping for %dh %dmin</string>
+    <string name="awake_for_minutes">Awake for %d min</string>
+    <string name="awake_for_hours">Awake for %dh %dmin</string>
     <string name="status_charging">Charging</string>
 </resources>

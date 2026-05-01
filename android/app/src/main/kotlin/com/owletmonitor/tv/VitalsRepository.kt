@@ -24,12 +24,12 @@ object VitalsRepository {
         val token = AppSettings.authToken
         val uid   = AppSettings.userId
         if (url.isBlank()) {
-            emit(VitalsData(null, null, null, null, null, null, false, System.currentTimeMillis()))
+            emit(VitalsData(null, null, null, null, null, null, null, false, System.currentTimeMillis()))
             return
         }
         PrometheusClient.fetchVitals(url, uid, token,
             onSuccess = { data -> emit(data) },
-            onError   = { _    -> emit(VitalsData(null, null, null, null, null, null, false, System.currentTimeMillis())) },
+            onError   = { _    -> emit(VitalsData(null, null, null, null, null, null, null, false, System.currentTimeMillis())) },
         )
     }
 

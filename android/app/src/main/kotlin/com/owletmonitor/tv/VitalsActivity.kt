@@ -98,9 +98,17 @@ abstract class VitalsActivity : Activity() {
             data.sleepStateRaw?.let { VitalsFormatter.sleepStateText(this, it) } ?: "––"
 
         val tvDuration = findViewById<TextView>(R.id.tv_sleep_duration)
-        val sleeping = data.sleepStartedAtMs != null
-        tvDuration?.visibility = if (sleeping) View.VISIBLE else View.GONE
-        if (sleeping) tvDuration?.text = VitalsFormatter.sleepDurationText(this, data.sleepStartedAtMs!!)
+        when {
+            data.sleepStartedAtMs != null -> tvDuration?.apply {
+                visibility = View.VISIBLE
+                text = VitalsFormatter.sleepDurationText(this@VitalsActivity, data.sleepStartedAtMs!!)
+            }
+            data.awakeStartedAtMs != null -> tvDuration?.apply {
+                visibility = View.VISIBLE
+                text = VitalsFormatter.awakeDurationText(this@VitalsActivity, data.awakeStartedAtMs!!)
+            }
+            else -> tvDuration?.visibility = View.GONE
+        }
 
         val tvSock = findViewById<TextView>(R.id.tv_sock_connection)
         tvSock?.text = VitalsFormatter.sockText(this, data.sockConnected)

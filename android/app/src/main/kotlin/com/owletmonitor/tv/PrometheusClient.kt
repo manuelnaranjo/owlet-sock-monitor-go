@@ -60,14 +60,15 @@ object PrometheusClient {
                 val charging    = fetchInstantMetric(endpointUrl, userId, token, "owlet_charging_status")
                 val sleepSeries = fetchSleepHistory(endpointUrl, userId, token)
                 val sleepRaw    = sleepSeries.lastOrNull()?.second
-                val sleepStart  = computeSleepStart(sleepSeries)
+                val stateInfo   = computeStateStart(sleepSeries)
                 val data = VitalsData(
                     oxygenPercent    = oxygen?.toInt(),
                     heartRateBpm     = heartRate?.toInt(),
                     sleepStateRaw    = sleepRaw,
                     sockConnected    = sockConn?.let { it >= 2 },
                     skinTemp         = skinTemp?.toFloat(),
-                    sleepStartedAtMs = sleepStart,
+                    sleepStartedAtMs = if (stateInfo.isSleeping) stateInfo.startedAtMs else null,
+                    awakeStartedAtMs = if (!stateInfo.isSleeping) stateInfo.startedAtMs else null,
                     isCharging       = (charging ?: 0.0) > 0,
                     fetchedAtMs      = System.currentTimeMillis(),
                 )
@@ -105,7 +106,7 @@ object PrometheusClient {
     private fun fetchSleepHistory(endpointUrl: String, userId: String, token: String): List<Pair<Long, Int>> {
         return try {
             val now   = System.currentTimeMillis() / 1000
-            val start = now - 24 * 3600
+            val start = now - 12 * 3600
             val url = URL("$endpointUrl/api/v1/query_range?query=owlet_ss&start=$start&end=$now&step=60")
             val conn = url.openConnection() as HttpURLConnection
             conn.setRequestProperty("Authorization", "Basic ${credentials(userId, token)}")
@@ -130,33 +131,55 @@ object PrometheusClient {
         }
     }
 
-    // Pure function — determines when the current sleep session started.
-    // A sleep session ends only when the baby has been awake for >= 5 consecutive minutes.
-    // Brief zeros (< 5 min) are treated as part of the ongoing sleep session.
-    private fun computeSleepStart(series: List<Pair<Long, Int>>): Long? {
-        if (series.isEmpty() || series.last().second == 0) return null
+    private data class StateInfo(val isSleeping: Boolean, val startedAtMs: Long?)
 
-        var sleepSessionStartMs = series.last().first
-        var zeroRunMs = 0L
-        var zeroRunStartIdx = -1
+    // Two-phase algorithm:
+    // Phase 1 — scan latest→oldest for the first run of 3 consecutive same-state samples to
+    //            confirm the current state (handles noisy recent readings).
+    // Phase 2 — walk further back from that confirmed point to find when a prior opposite-state
+    //            run lasted >= 5 min, marking the true state transition.
+    // Sleep threshold: owlet_ss > 2 → sleeping, <= 2 → awake.
+    private fun computeStateStart(series: List<Pair<Long, Int>>): StateInfo {
+        if (series.size < 3) return StateInfo(false, null)
+
+        // Phase 1: find first run of 3 consecutive same-state samples from the end
+        var runState    = series.last().second > 2
+        var runCount    = 1
+        var runStartIdx = series.lastIndex
+        var confirmedState: Boolean? = null
+        var confirmedStartIdx = -1
 
         for (i in series.lastIndex - 1 downTo 0) {
-            val (ts, v) = series[i]
-            val nextTs  = series[i + 1].first
-
-            if (v == 0) {
-                if (zeroRunStartIdx == -1) zeroRunStartIdx = i
-                zeroRunMs += (nextTs - ts)
-                if (zeroRunMs >= 5 * 60 * 1000L) {
-                    return series[zeroRunStartIdx + 1].first
-                }
+            val state = series[i].second > 2
+            if (state == runState) {
+                runCount++
+                runStartIdx = i
+                if (runCount >= 3) { confirmedState = runState; confirmedStartIdx = runStartIdx; break }
             } else {
-                sleepSessionStartMs = ts
-                zeroRunMs = 0L
-                zeroRunStartIdx = -1
+                runState = state; runCount = 1; runStartIdx = i
             }
         }
-        return sleepSessionStartMs
+        if (confirmedState == null) return StateInfo(false, null)
+
+        val currentIsSleeping = confirmedState
+        // Phase 2: walk backwards from confirmedStartIdx to find prior state transition
+        var stateStartMs      = series[confirmedStartIdx].first
+        var oppositeRunMs     = 0L
+        var oppositeRunStartIdx = -1
+
+        for (i in confirmedStartIdx - 1 downTo 0) {
+            val (ts, v) = series[i]
+            val nextTs  = series[i + 1].first
+            if ((v > 2) != currentIsSleeping) {
+                if (oppositeRunStartIdx == -1) oppositeRunStartIdx = i
+                oppositeRunMs += (nextTs - ts)
+                if (oppositeRunMs >= 5 * 60 * 1000L)
+                    return StateInfo(currentIsSleeping, series[oppositeRunStartIdx + 1].first)
+            } else {
+                stateStartMs = ts; oppositeRunMs = 0L; oppositeRunStartIdx = -1
+            }
+        }
+        return StateInfo(currentIsSleeping, stateStartMs)
     }
 
     private fun credentials(userId: String, token: String): String =

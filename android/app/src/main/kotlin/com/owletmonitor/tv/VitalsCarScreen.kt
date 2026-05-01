@@ -64,9 +64,12 @@ class VitalsCarScreen(carContext: CarContext) : Screen(carContext) {
         }
 
         val sleepStateStr = data?.sleepStateRaw?.let { VitalsFormatter.sleepStateText(carContext, it) } ?: "––"
-        val sleepDurStr   = data?.sleepStartedAtMs?.let { VitalsFormatter.sleepDurationText(carContext, it) } ?: ""
-        val sleepText     = if (sleepDurStr.isNotEmpty()) "$sleepStateStr\n$sleepDurStr"
-                            else sleepStateStr
+        val durationStr = when {
+            data?.sleepStartedAtMs != null -> VitalsFormatter.sleepDurationText(carContext, data.sleepStartedAtMs!!)
+            data?.awakeStartedAtMs != null -> VitalsFormatter.awakeDurationText(carContext, data.awakeStartedAtMs!!)
+            else -> ""
+        }
+        val sleepText = if (durationStr.isNotEmpty()) "$sleepStateStr\n$durationStr" else sleepStateStr
 
         return GridTemplate.Builder()
             .setTitle(carContext.getString(R.string.app_name))
